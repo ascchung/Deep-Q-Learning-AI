@@ -1,6 +1,6 @@
 class Config:
     learning_rate = 5e-4
     minibatch_size = 100
-    gamma = 0.99
-    buffer_size = int(1e5)
-    tau = 1e-3
+    discount_factor = 0.99
+    replay_buffer_size = int(1e5)
+    interpolation_parameter = 1e-3
