@@ -5,13 +5,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from collections import deque, namedtuple
 
-from src.config import (
-    learning_rate,
-    replay_buffer_size,
-    minibatch_size,
-    discount_factor,
-    interpolation_parameter,
-)
+from src.config import Config
 from src.model import Network
 from src.utils import ReplayMemory
 
@@ -31,9 +25,9 @@ class Agent:
         self.memory.push((state, action, reward, next_state, done))
         self.t_step = (self.t_step + 1) % 4
         if self.t_step == 0:
-            if len(self.memory.memory) > minibatch_size:
-                experiences = self.memory.sample(minibatch_size)
-                self.learn(experiences, discount_factor)
+            if len(self.memory.memory) > Config.minibatch_size:
+                experiences = self.memory.sample(Config.minibatch_size)
+                self.learn(experiences, Config.discount_factor)
 
     def act(self, state, epsilon=0.0):
         state = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
@@ -63,5 +57,14 @@ class Agent:
         self.optimizer.step()
 
         self.soft_update(
-            self.local_qnetwork, self.target_qnetwork, interpolation_parameter
+            self.local_qnetwork, self.target_qnetwork, Config.interpolation_parameter
         )
+
+    def soft_update(self, local_model, target_model, interpolation_parameter):
+        for target_param, local_param in zip(
+            target_model.parameters(), local_model.parameters()
+        ):
+            target_param.data.copy_(
+                interpolation_parameter * local_param.data
+                + (1.0 - interpolation_parameter) * target_param.data
+            )
