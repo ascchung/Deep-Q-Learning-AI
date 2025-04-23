@@ -17,8 +17,10 @@ class Agent:
         self.action_size = action_size
         self.local_qnetwork = Network(state_size, action_size).to(self.device)
         self.target_qnetwork = Network(state_size, action_size).to(self.device)
-        self.optimizer = optim.Adam(self.local_qnetwork.parameters(), lr=learning_rate)
-        self.memory = ReplayMemory(replay_buffer_size)
+        self.optimizer = optim.Adam(
+            self.local_qnetwork.parameters(), lr=Config.learning_rate
+        )
+        self.memory = ReplayMemory(Config.buffer_size)
         self.t_step = 0
 
     def step(self, state, action, reward, next_state, done):
